@@ -1,0 +1,195 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<sys/types.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
+#include<unistd.h>
+#include<signal.h>
+#include<pthread.h>
+#include"sock_define.h"
+
+int server_fd;
+struct List *l;
+
+void clean()
+{
+	while(l->phead != NULL)
+	{
+		close(l->phead->fd);
+		struct Node *temp = l->phead;
+		l->phead = l->phead->next;
+		free(temp);
+	}
+
+	close(server_fd);
+	printf("Done !!! \n");
+	exit(0);
+}
+
+
+void client_handler(struct Node *p)
+{
+	
+	char nickname[NAME_LEN];
+	char send_data[MSG_LEN];
+	char receive_data[MSG_LEN];
+loop:;
+	memset(nickname,0,NAME_LEN);
+	recv(p->fd,nickname,NAME_LEN,0);
+	del_enter(nickname,strlen(nickname));
+
+	struct Node *temp = l->phead;
+	int flag = 0;
+	while(temp != NULL)
+	{
+		if(temp == p)
+		{
+			if(temp->next == NULL)
+			{
+				if(strcmp(temp->name,nickname)==0)
+					flag = 1;
+				else
+					break;
+			}
+
+			else
+				temp=p->next;
+			
+			
+		}
+
+
+		if(strcmp(temp->name,nickname)==0)
+			flag =1 ;
+
+		if(flag)
+		{
+			memset(send_data,0,MSG_LEN);
+			sprintf(send_data,"the name has been used !!! \n");
+			send(p->fd,send_data,MSG_LEN,0);
+			goto loop;		
+		}
+
+
+		temp = temp->next;
+
+	}	
+
+
+	memset(p->name,0,NAME_LEN);
+	strcpy(p->name,nickname);
+
+	printf("%s has joined the room !!! \n",p->name);
+	sprintf(send_data,"%s has joined the room !!!\n",nickname);
+	send_all_clients(p,send_data,l);
+
+
+	int leave = 0;
+	
+	while(leave == 0)
+	{
+		memset(send_data,0,MSG_LEN);
+		memset(receive_data,0,MSG_LEN);
+
+		int ret = recv(p->fd, receive_data , MSG_LEN ,0);
+		
+		if(ret > 0)
+		{
+			printf("%s>%s\n",p->name,receive_data);
+			sprintf(send_data,"%s>%s",nickname,receive_data);
+		}
+
+		
+		else if(ret == 0)
+		{
+			printf("%s has left the room  !!!\n",p->name);
+			sprintf(send_data,"%s has left the room !!! \n",p->name);
+			leave = 1;
+		}
+
+		else
+		{
+			printf("cant read the file !!! \n");
+			leave = 1;
+		}
+
+		send_all_clients(p,send_data,l);				
+
+	}
+
+	if(p == l->phead)
+	{
+		if(p->next == NULL)
+		{
+			l->phead = NULL;
+			free(p);
+			return;
+		}
+
+	
+		else
+		{
+			l->phead = p->next;
+			p->next->prev = NULL;
+			free(p);
+			return;
+		}
+	}
+
+
+	else if(p->next == NULL)
+	{
+		p->prev->next = NULL;
+		free(p);
+	}
+
+
+	else
+	{
+		p->prev->next = p->next;
+		p->next->prev = p->prev;
+		free(p);
+	}
+	
+
+}
+
+int main()
+{
+
+	printf("hello \n");
+	l = (struct List *)malloc(sizeof(struct List));
+	l->phead = NULL;
+
+	signal(SIGINT,clean);
+	printf("hello \n");
+	struct sockaddr_in server_info,client_info;
+	socklen_t s_addrlen = sizeof(server_info);	
+	socklen_t c_addrlen = sizeof(client_info);
+
+	memset(&server_info,0,s_addrlen);
+	memset(&client_info,0,c_addrlen);
+	
+	server_info.sin_family = AF_INET;
+	server_info.sin_addr.s_addr = inet_addr("192.168.1.105");
+	server_info.sin_port = htons(3333);
+	server_fd = socket(AF_INET, SOCK_STREAM,0);
+	bind(server_fd,(struct sockaddr*)&server_info,s_addrlen);
+	listen(server_fd,5);
+
+	printf("SERVER IP: %s \n",inet_ntoa(server_info.sin_addr));
+	printf("PORT: %d \n",ntohs(server_info.sin_port));
+
+
+	while(1)
+	{
+		int client_fd = accept(server_fd,(struct sockaddr*)&client_info,&c_addrlen);
+		struct Node *p = NewNode(client_fd,inet_ntoa(client_info.sin_addr),l);
+		pthread_t a;
+		pthread_create(&a,NULL,(void*)client_handler,p);
+
+	}
+
+}
+
