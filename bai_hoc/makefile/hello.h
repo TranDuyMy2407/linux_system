@@ -1,2 +1,0 @@
-void printf_hello();
-
