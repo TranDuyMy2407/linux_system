@@ -4,4 +4,5 @@ Tất cả các phiên kết nối được lưu trữ dưới dạng danh sách
 
 - Hoạt động gửi và nhận được thực hiện ở 2 luồng riêng biệt để tránh tình trạng phải đợi hoạt động này hoàn thành
 rồi mới thực hiện hành động tiếp theo
-- Phần mềm sử dụng signal để bắt tín hiệu SIGINT , khi người dùng nhấn Ctrl + C, phần mềm sẽ nhảy tới hàm được cài đặt , xóa vùng nhớ và đóng các file descriptor trước khi thoát
+- Phần mềm sử dụng signal để bắt tín hiệu SIGINT , khi người dùng nhấn Ctrl + C, phần mềm sẽ nhảy tới hàm được cài đặt ,
+xóa vùng nhớ và đóng các file descriptor trước khi thoát
