@@ -27,7 +27,7 @@ void send_data()
 	while(1)
 	{
 		memset(send_buffer,0,MSG_LEN);
-		fgets(send_buffer,MSG_LEN, stdin);
+		scanf("%[^\n]%*c",send_buffer);
 		if(strlen(send_buffer) > 0)
 			send(sockfd,send_buffer,MSG_LEN,0);
 	}
@@ -45,19 +45,16 @@ void receive_data()
 		memset(receive_buffer,0,MSG_LEN);
 		ret = recv(sockfd,receive_buffer,MSG_LEN,0);
 		if(ret > 0)
-		{
-			del_enter(receive_buffer,strlen(receive_buffer));
 			printf("%s\n",receive_buffer);
-		}
 
 		else if(ret == 0)
 		{
 			printf("the server has closed");
 			catch_signal();
 		}
+	//	else{}
 
 
-		else{}
 	}
 	
 }
@@ -103,15 +100,13 @@ int main()
 		
 				memset(nickname,0,NAME_LEN);
 				printf("enter your nickname: ");
-				fgets(nickname,NAME_LEN,stdin);
-
+				scanf("%[^\n]%*c",nickname);
 				if(strlen(nickname) < 2 || strlen(nickname) > NAME_LEN)
 					printf("the nickname is invalid , please try again !!! \n");	
 		
 	
 			}while(strlen(nickname) < 2 || strlen(nickname) > NAME_LEN);
 	
-			del_enter(nickname,strlen(nickname));
 			send(sockfd,nickname,strlen(nickname),0);
 			recv(sockfd,&flag,1,0);
 

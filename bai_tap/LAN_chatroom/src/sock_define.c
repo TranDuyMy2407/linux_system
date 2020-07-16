@@ -17,17 +17,6 @@ void Init(struct List *l)
         l->phead = NULL;
 }
 
-void del_enter(char *msg,int n)
-{
-	for(int i = 0  ;i<n ; i++)
-	{
-		if(msg[i] == '\n')
-		{
-			msg[i] = '\0';
-			break;	
-		}
-	}
-}
 
 struct Node *NewNode(int fd , char *ip, struct List *l)
 {

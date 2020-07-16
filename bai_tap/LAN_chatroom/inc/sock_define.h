@@ -21,7 +21,6 @@ struct List
 
 void Init(struct List *l);
 void error(char *msg);
-void del_enter(char *msg , int n);
 struct Node *NewNode(int fd , char *ip, struct List *l);
 void send_all_clients(struct Node *p, char *msg , struct List *l);
 
