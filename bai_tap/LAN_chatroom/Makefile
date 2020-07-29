@@ -22,6 +22,9 @@ $(OUTPUT_DIR)/client:	client.o sock_define.o  $(INC)
 client.o: $(SRC_DIR)/client.c
 	$(CC) -c $<
 
+clean:
+	rm $(OUTPUT_DIR)/*
+
 
 
 	
