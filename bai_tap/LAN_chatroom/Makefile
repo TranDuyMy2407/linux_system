@@ -24,6 +24,9 @@ $(OBJ_DIR)/client.o: $(SRC_DIR)/client.c
 $(OBJ_DIR)/sock_define.o: $(SRC_DIR)/sock_define.c 
 	$(CC) -c -o  $@ $<
 
+clean: 
+	rm $(OUTPUT_DIR)/* $(OBJ_DIR)/*
+
 
 	
 
