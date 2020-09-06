@@ -33,7 +33,7 @@ void client_handler(struct Node *p)
 	
 	char nickname[NAME_LEN];
 	char send_data[MSG_LEN];
-	char receive_data[200];
+	char receive_data[MSG_LEN];
 
 
 
@@ -75,7 +75,7 @@ void client_handler(struct Node *p)
 		
 		if(ret > 0)
 		{
-			printf("%s>%s\n",p->name,receive_data);
+			printf("%s>%s",p->name,receive_data);
 			sprintf(send_data,"%s>%s",nickname,receive_data);
 		}
 
@@ -103,7 +103,6 @@ void client_handler(struct Node *p)
 		{
 			l->phead = NULL;
 			free(p);
-			return;
 		}	
 		
 
@@ -113,7 +112,6 @@ void client_handler(struct Node *p)
 			l->phead = p->next;
 			p->next->prev = NULL;
 			free(p);
-			return;
 		}
 	}
 
@@ -138,24 +136,44 @@ void client_handler(struct Node *p)
 int main()
 {
 
-	printf("hello \n");
+	//allocate memory for the list
 	l = (struct List *)malloc(sizeof(struct List));
 	l->phead = NULL;
 
+
+	//set up signal function
 	signal(SIGINT,clean);
-	printf("hello \n");
+
+	//sockaddr_in structure variables to store server and clients information
 	struct sockaddr_in server_info,client_info;
 	socklen_t s_addrlen = sizeof(server_info);	
 	socklen_t c_addrlen = sizeof(client_info);
 
+	//write NULL character to all components of structure variable
 	memset(&server_info,0,s_addrlen);
 	memset(&client_info,0,c_addrlen);
 	
+
 	server_info.sin_family = AF_INET;
+
+	//use loopback address
 	server_info.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+	//use 3333 port number
 	server_info.sin_port = htons(3333);
+
+	/*
+	 *socket : create a socket
+	 *AF_INET: format address for host and port number
+	 * 0 : use TCP/IP protocol (1 for UDP)
+	 * */
 	server_fd = socket(AF_INET, SOCK_STREAM,0);
+
+
+	//assign a address to server socket
 	bind(server_fd,(struct sockaddr*)&server_info,s_addrlen);
+
+	//specifies maximum number of connections that can be pending
 	listen(server_fd,5);
 
 	printf("SERVER IP: %s \n",inet_ntoa(server_info.sin_addr));
@@ -164,11 +182,14 @@ int main()
 
 	while(1)
 	{
+		//waiting for clients request
 		int client_fd = accept(server_fd,(struct sockaddr*)&client_info,&c_addrlen);
+
+		//create a node to store information of client
 		struct Node *p = NewNode(client_fd,inet_ntoa(client_info.sin_addr),l);
 
-		pthread_t a;
-		pthread_create(&a,NULL,(void*)client_handler,p);
+		//create a new thread to handler the requets
+		pthread_t a = pthread_create(&a,NULL,(void*)client_handler,p);
 
 	}
 

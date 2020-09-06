@@ -27,9 +27,11 @@ void send_data()
 	while(1)
 	{
 		memset(send_buffer,0,MSG_LEN);
-		scanf("%[^\n]%*c",send_buffer);
+		fgets(send_buffer,MSG_LEN,stdin);
 		if(strlen(send_buffer) > 0)
 			send(sockfd,send_buffer,MSG_LEN,0);
+
+
 	}
 
 	
@@ -45,14 +47,15 @@ void receive_data()
 		memset(receive_buffer,0,MSG_LEN);
 		ret = recv(sockfd,receive_buffer,MSG_LEN,0);
 		if(ret > 0)
-			printf("%s\n",receive_buffer);
+			printf("\r%s",receive_buffer);
 
 		else if(ret == 0)
 		{
 			printf("the server has closed");
 			catch_signal();
 		}
-	//	else{}
+
+
 
 
 	}
@@ -79,6 +82,8 @@ int main()
 	if(sockfd < 0)
 		error("cant create the file !!! \n");
 
+
+	//connect to server
 	int err = connect(sockfd,(struct sockaddr*)&server_info,c_addrlen);
 	if(err < 0)
 		error("connecting error !!! \n");
@@ -92,6 +97,7 @@ int main()
 		
 		char flag;
 		
+		//enter nickname
 		while(1)
 		{
 			char nickname[NAME_LEN];
@@ -100,14 +106,26 @@ int main()
 		
 				memset(nickname,0,NAME_LEN);
 				printf("enter your nickname: ");
-				scanf("%[^\n]%*c",nickname);
+				fgets(nickname,NAME_LEN,stdin);
+				for(int i=0;i<strlen(nickname);i++)
+				{
+					if(nickname[i]=='\n')
+					{
+						nickname[i]='\0';
+						break;
+					}
+				}	
+
 				if(strlen(nickname) < 2 || strlen(nickname) > NAME_LEN)
 					printf("the nickname is invalid , please try again !!! \n");	
 		
 	
 			}while(strlen(nickname) < 2 || strlen(nickname) > NAME_LEN);
 	
+			//send flag to server 
 			send(sockfd,nickname,strlen(nickname),0);
+
+			//receive flag from server to verify the name is valid
 			recv(sockfd,&flag,1,0);
 
 			if(flag == '0')
@@ -124,9 +142,13 @@ int main()
 		
 	pthread_t send_t;
 	
+
+	//create thread to send data
 	if(pthread_create(&send_t, NULL, (void *)send_data, NULL) < 0)
 		error("thread creation error !!! \n");
 
+
+	//create thread to receive data
 	pthread_t recv_t;
 	if(pthread_create(&recv_t,NULL, (void *)receive_data,NULL) < 0)
 		error("thread creation error !!! \n");
