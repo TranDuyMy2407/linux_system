@@ -19,7 +19,6 @@ typedef struct List
 }List;
 
 
-void Init(struct List *l);
 void error(char *msg);
 struct Node *NewNode(int fd , char *ip, struct List *l);
 void send_all_clients(struct Node *p, char *msg , struct List *l);
