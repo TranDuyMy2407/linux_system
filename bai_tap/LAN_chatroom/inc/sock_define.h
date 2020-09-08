@@ -1,5 +1,5 @@
 #define MSG_LEN	   1000
-#define NAME_LEN   100
+#define NAME_LEN   1000
 #define IP_LEN	   16
 
 
