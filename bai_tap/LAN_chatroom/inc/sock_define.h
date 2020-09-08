@@ -4,19 +4,19 @@
 
 
 
-struct Node
+typedef struct Node
 {
 	int fd;
 	char name[NAME_LEN];
 	char ip[IP_LEN];
 	struct Node *next;
 	struct Node *prev;
-};
+}Node;
 
-struct List
+typedef struct List
 {
 	struct Node *phead;
-};
+}List;
 
 
 void Init(struct List *l);

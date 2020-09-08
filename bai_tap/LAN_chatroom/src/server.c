@@ -10,14 +10,14 @@
 #include"../inc/sock_define.h"
 
 int server_fd;
-struct List *l;
+List *l;
 
 void clean()
 {
 	while(l->phead != NULL)
 	{
 		close(l->phead->fd);
-		struct Node *temp = l->phead;
+		  Node *temp = l->phead;
 		l->phead = l->phead->next;
 		free(temp);
 	}
@@ -28,7 +28,7 @@ void clean()
 }
 
 
-void client_handler(struct Node *p)
+void client_handler(  Node* p)
 {
 	
 	char nickname[NAME_LEN];
@@ -37,7 +37,7 @@ void client_handler(struct Node *p)
 
 
 
-        struct Node *temp = l->phead;
+          Node *temp = l->phead;
 
 	while(1)
 	{	
@@ -137,19 +137,19 @@ int main()
 {
 
 	//allocate memory for the list
-	l = (struct List *)malloc(sizeof(struct List));
-	l->phead = NULL;
-
 
 	//set up signal function
+
+	l = (List*)(malloc(sizeof(List)));
+	l->phead = NULL;
 	signal(SIGINT,clean);
 
-	//sockaddr_in structure variables to store server and clients information
+	//sockaddr_in  ure variables to store server and clients information
 	struct sockaddr_in server_info,client_info;
 	socklen_t s_addrlen = sizeof(server_info);	
 	socklen_t c_addrlen = sizeof(client_info);
 
-	//write NULL character to all components of structure variable
+	//write NULL character to all components of  ure variable
 	memset(&server_info,0,s_addrlen);
 	memset(&client_info,0,c_addrlen);
 	
@@ -186,7 +186,7 @@ int main()
 		int client_fd = accept(server_fd,(struct sockaddr*)&client_info,&c_addrlen);
 
 		//create a node to store information of client
-		struct Node *p = NewNode(client_fd,inet_ntoa(client_info.sin_addr),l);
+		  Node *p = NewNode(client_fd,inet_ntoa(client_info.sin_addr),l);
 
 		//create a new thread to handler the requets
 		pthread_t a = pthread_create(&a,NULL,(void*)client_handler,p);
