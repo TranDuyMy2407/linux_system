@@ -16,3 +16,4 @@ $(OUTPUT_DIR)/hello.s: $(SRC_DIR)/hello.c
 clean:
 	rm -rf $(OUTPUT_DIR)/*
 
+help:
