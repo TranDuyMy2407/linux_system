@@ -12,7 +12,7 @@ void error(char *a)
 
 int main()
 {
-	char *a = "nguc ban Thao ngon vl !!! \n";
+	char *a = "abwerwer !!! \n";
 	char buffer[200];
 	memset(buffer,0,sizeof(buffer));
 
